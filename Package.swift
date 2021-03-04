@@ -5,11 +5,15 @@ import PackageDescription
 
 let package = Package(
     name: "Store",
+    platforms: [
+        .macOS(.v10_15), .iOS(.v14)
+    ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "Store",
-            targets: ["Store"]),
+            targets: ["Store"]
+        ),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -20,9 +24,11 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "Store",
-            dependencies: []),
+            dependencies: []
+        ),
         .testTarget(
             name: "StoreTests",
-            dependencies: ["Store"]),
+            dependencies: ["Store"]
+        ),
     ]
 )
