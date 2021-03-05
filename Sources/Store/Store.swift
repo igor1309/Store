@@ -16,4 +16,12 @@ public protocol Store {
     func fetch(_ query: Query) -> Future<[Object], Error>
 }
 
-public struct Query {}
+
+import CoreData
+
+public struct Query {
+    #warning("finish this")
+    public var predicate: NSPredicate
+
+
+}

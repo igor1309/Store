@@ -20,8 +20,8 @@ final class StoreMockTests: XCTestCase {
         XCTAssert(store.projects.isEmpty)
 
         let expectation = expectation(description: String(describing: #function))
-        let project = StoreMock.Project(name: "test")
-        var result: StoreMock.Project?
+        let project = Project(name: "test", amount: 10, id: UUID())
+        var result: Project?
 
         _ = store
             .insert(project)
@@ -34,7 +34,8 @@ final class StoreMockTests: XCTestCase {
         waitForExpectations(timeout: 2)
 
         XCTAssertNotNil(result)
-        XCTAssertEqual(result, StoreMock.Project(name: "test"))
+        XCTAssertEqual(result?.name, "test")
+        XCTAssertEqual(result?.amount, 10)
         XCTAssertEqual(store.projects.count, 1)
     }
 
@@ -42,7 +43,7 @@ final class StoreMockTests: XCTestCase {
         XCTAssert(store.projects.isEmpty)
 
         let expectation = expectation(description: String(describing: #function))
-        let project = StoreMock.Project(name: "test")
+        let project = Project(name: "test", amount: 0, id: UUID())
 
         _ = store
             .update(project)
@@ -68,12 +69,12 @@ final class StoreMockTests: XCTestCase {
         XCTAssert(store.projects.isEmpty)
 
         let expectation = expectation(description: String(describing: #function))
-        let project = StoreMock.Project(name: "test")
-        var result: StoreMock.Project?
+        let project = Project(name: "test", amount: 0, id: UUID())
+        var result: Project?
 
         _ = store
             .insert(project)
-            .flatMap { (project: StoreMock.Project) -> Future<StoreMock.Project, Error> in
+            .flatMap { (project: Project) -> Future<Project, Error> in
                 var copy = project
                 copy.amount = 10
                 return self.store.update(copy)
@@ -92,7 +93,8 @@ final class StoreMockTests: XCTestCase {
         waitForExpectations(timeout: 2)
 
         XCTAssertNotNil(result)
-        XCTAssertEqual(result, StoreMock.Project(name: "test", amount: 10))
+        XCTAssertEqual(result?.name, "test")
+        XCTAssertEqual(result?.amount, 10)
         XCTAssertEqual(store.projects.count, 1)
     }
 
@@ -100,7 +102,7 @@ final class StoreMockTests: XCTestCase {
         XCTAssert(store.projects.isEmpty)
 
         let expectation = expectation(description: String(describing: #function))
-        let project = StoreMock.Project(name: "test")
+        let project = Project(name: "test", amount: 0, id: UUID())
 
         _ = store
             .delete(project)
@@ -124,7 +126,7 @@ final class StoreMockTests: XCTestCase {
         XCTAssert(store.projects.isEmpty)
 
         let expectation = expectation(description: String(describing: #function))
-        let project = StoreMock.Project(name: "test")
+        let project = Project(name: "test", amount: 0, id: UUID())
 
         _ = store
             .insert(project)
@@ -133,7 +135,8 @@ final class StoreMockTests: XCTestCase {
             }
             .sink { _ in
             } receiveValue: { value in
-                XCTAssertEqual(value, StoreMock.Project(name: "test"))
+                XCTAssertEqual(value.name, "test")
+                XCTAssertEqual(value.amount, 0)
                 expectation.fulfill()
             }
 

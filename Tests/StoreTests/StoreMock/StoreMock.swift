@@ -9,13 +9,7 @@ import Combine
 import Store
 
 class StoreMock: Store {
-    typealias Object = Project
-
-    struct Project: Identifiable, Equatable {
-        let name: String
-        var amount = 0
-        var id: String { name }
-    }
+    typealias Object = Project    
 
     private(set) var projects: [Project] = []
 
