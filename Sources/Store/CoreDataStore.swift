@@ -38,6 +38,7 @@ open class CoreDataStore<Object: CoreDataStorable,
     public func insert(_ object: Object) -> Future<Object, Error> {
         Future { completion in
             let reflection = Reflection(context: self.context)
+//            guard let r = NSEntityDescription.insertNewObject(forEntityName: String(describing: Reflection.self), into: self.context) else { return completion(.failure(CoreDataError.invalidManagedObjectType)) }
             reflection.update(with: object)
 
             do {
@@ -100,9 +101,9 @@ open class CoreDataStore<Object: CoreDataStorable,
 }
 
 extension NSManagedObjectContext {
-    func fetch<T: NSManagedObject>(_ query: Query) throws -> [T] {
+    func fetch<T: NSManagedObject>(_ query: Query<T>) throws -> [T] {
         let fetchRequest: NSFetchRequest<T> = NSFetchRequest<T>(entityName: T.description())
-        fetchRequest.predicate = query.predicate
+        fetchRequest.predicate = query.nsPredicate
         fetchRequest.sortDescriptors = query.sortDescriptors
         return try fetch(fetchRequest)
     }

@@ -42,9 +42,9 @@ extension CDProject: CoreDataManageable {
     public typealias Object = Project
 
     public func update(with object: Project) {
-        self.name = object.name
-        self.amount = object.amount
-        self.id = object.id
+        name = object.name
+        amount = object.amount
+        id = object.id
     }
 
     public func transform() -> Project {
