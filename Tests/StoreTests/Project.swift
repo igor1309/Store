@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct Project: Identifiable, Equatable {
+public struct Project: Identifiable, Equatable {
     let name: String
     var amount: Double
-    let id: UUID
+    public let id: UUID
 }

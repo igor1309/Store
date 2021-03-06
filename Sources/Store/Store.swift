@@ -25,3 +25,10 @@ public struct Query {
 
 
 }
+extension Query {
+    #warning("finish this")
+    var sortDescriptors: [NSSortDescriptor] {
+        []
+    }
+}
+
