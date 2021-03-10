@@ -21,9 +21,13 @@ public protocol CoreDataManageable: NSManagedObject {
 
     /// A bridge, or map, from properties of Object to properties of CoreDataManageable.
     func update(with object: Object)
-    /// A method to `transform` CoreDataManageable to Object.
+
+    /// A method to transform CoreDataManageable to Object.
     /// In other words, a way to create Object from CoreDataManageable.
-    func transform() -> Object
+    func object() -> Object
+
+    static func predicate(from query: Query<Object>) -> NSPredicate
+    static func sortDescriptors(from query: Query<Object>) -> [NSSortDescriptor]
 }
 
 open class CoreDataStore<Object: CoreDataStorable,
@@ -38,7 +42,7 @@ open class CoreDataStore<Object: CoreDataStorable,
     public func insert(_ object: Object) -> Future<Object, Error> {
         Future { completion in
             let reflection = Reflection(context: self.context)
-//            guard let r = NSEntityDescription.insertNewObject(forEntityName: String(describing: Reflection.self), into: self.context) else { return completion(.failure(CoreDataError.invalidManagedObjectType)) }
+            // guard let r = NSEntityDescription.insertNewObject(forEntityName: String(describing: Reflection.self), into: self.context) else { return completion(.failure(CoreDataError.invalidManagedObjectType)) }
             reflection.update(with: object)
 
             do {
@@ -86,11 +90,14 @@ open class CoreDataStore<Object: CoreDataStorable,
         }
     }
 
-    public func fetch(_ query: Query) -> Future<[Object], Error> {
+    public func fetch(_ query: Query<Object>) -> Future<[Object], Error> {
         Future { completion in
             do {
-                let results: [Reflection] = try self.context.fetch(query)
-                let objects = results.map { $0.transform() }
+                let fetchRequest = NSFetchRequest<Reflection>(entityName: Reflection.description())
+                fetchRequest.predicate = Reflection.predicate(from: query)
+                fetchRequest.sortDescriptors = Reflection.sortDescriptors(from: query)
+                let results: [Reflection] = try self.context.fetch(fetchRequest)
+                let objects = results.map { $0.object() }
                 completion(.success(objects))
             } catch {
                 completion(.failure(error))
@@ -100,11 +107,3 @@ open class CoreDataStore<Object: CoreDataStorable,
 
 }
 
-extension NSManagedObjectContext {
-    func fetch<T: NSManagedObject>(_ query: Query<T>) throws -> [T] {
-        let fetchRequest: NSFetchRequest<T> = NSFetchRequest<T>(entityName: T.description())
-        fetchRequest.predicate = query.nsPredicate
-        fetchRequest.sortDescriptors = query.sortDescriptors
-        return try fetch(fetchRequest)
-    }
-}
