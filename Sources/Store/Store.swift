@@ -14,5 +14,5 @@ public protocol Store {
     func insert(_ object: Object) -> Future<Object, Error>
     func update(_ object: Object) -> Future<Object, Error>
     func delete(_ object: Object) -> Future<Object, Error>
-    func fetch(_ query: Query<Object>) -> Future<[Object], Error>
+    func fetchAll() -> Future<[Object], Error>
 }

@@ -25,9 +25,6 @@ public protocol CoreDataManageable: NSManagedObject {
     /// A method to transform CoreDataManageable to Object.
     /// In other words, a way to create Object from CoreDataManageable.
     func object() -> Object
-
-    static func predicate(from query: Query<Object>) -> NSPredicate
-    static func sortDescriptors(from query: Query<Object>) -> [NSSortDescriptor]
 }
 
 open class CoreDataStore<Object: CoreDataStorable,
@@ -90,12 +87,13 @@ open class CoreDataStore<Object: CoreDataStorable,
         }
     }
 
-    public func fetch(_ query: Query<Object>) -> Future<[Object], Error> {
+    public func fetchAll() -> Future<[Object], Error> {
         Future { completion in
             do {
                 let fetchRequest = NSFetchRequest<Reflection>(entityName: Reflection.description())
-                fetchRequest.predicate = Reflection.predicate(from: query)
-                fetchRequest.sortDescriptors = Reflection.sortDescriptors(from: query)
+                fetchRequest.predicate = NSPredicate(format: "TRUEPREDICATE")
+                fetchRequest.sortDescriptors = []
+
                 let results: [Reflection] = try self.context.fetch(fetchRequest)
                 let objects = results.map { $0.object() }
                 completion(.success(objects))

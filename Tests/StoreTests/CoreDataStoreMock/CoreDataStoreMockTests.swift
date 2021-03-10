@@ -21,33 +21,6 @@ final class CoreDataStoreMockTests: XCTestCase {
         store = CoreDataStoreMock(context: context)
     }
 
-    func test_func_predicate_name() {
-        let predicate = Predicate<Project>.compare(\Project.name, operation: .equal, value: "Test")
-        let sortOption = SortOption(property: \Project.name, order: .ascending)
-        let query = Query<Project>(predicate: predicate, sortOptions: [sortOption])
-
-        let nsPredicate = CDProject.predicate(from: query)
-        XCTAssertEqual(nsPredicate, NSPredicate(format: "%K == %@", #keyPath(CDProject.name_), "Test"))
-
-        let nsSortDescriptors = CDProject.sortDescriptors(from: query)
-        let nsSortDescriptor = NSSortDescriptor(keyPath: \CDProject.name_, ascending: true)
-        XCTAssertEqual(nsSortDescriptors, [nsSortDescriptor])
-    }
-
-    func test_func_predicate_amount() {
-        let predicate = Predicate<Project>.compare(\Project.amount, operation: .equal, value: 2.0)
-        let sortOption = SortOption(property: \Project.amount, order: .ascending)
-        let query = Query<Project>(predicate: predicate, sortOptions: [sortOption])
-
-        let nsPredicate = CDProject.predicate(from: query)
-        let nsPredicate2 = NSPredicate(format: "%K == %@", #keyPath(CDProject.amount), NSNumber(floatLiteral: 2))
-        XCTAssertEqual(nsPredicate, nsPredicate2)
-
-        let nsSortDescriptors = CDProject.sortDescriptors(from: query)
-        let nsSortDescriptor = NSSortDescriptor(keyPath: \CDProject.amount, ascending: true)
-        XCTAssertEqual(nsSortDescriptors, [nsSortDescriptor])
-    }
-
     func testInsertObject() throws {
         XCTAssertEqual(store.context.realCount(for: requestAll), 0, "Data store should be empty.")
 
@@ -125,14 +98,10 @@ final class CoreDataStoreMockTests: XCTestCase {
         let expectation = expectation(description: String(describing: #function))
         let project = Project(name: "test", amount: 10, id: UUID())
 
-        let predicate = Predicate<Project>.compare(\Project.name, operation: .notEqual, value: "")
-        let sortOptions = [SortOption<Project>(property: \Project.name, order: .ascending)]
-        let query = Query(predicate: predicate, sortOptions: sortOptions)
-
         var projects = [Project]()
         _ = store.insert(project)
             .flatMap { _ in
-                self.store.fetch(query)
+                self.store.fetchAll()
             }
             .sink { _ in
             } receiveValue: { value in
@@ -151,10 +120,6 @@ final class CoreDataStoreMockTests: XCTestCase {
 
         let expectation = expectation(description: String(describing: #function))
 
-        let predicate = Predicate<Project>.compare(\Project.name, operation: .notEqual, value: "")
-        let sortOptions = [SortOption<Project>(property: \Project.name, order: .ascending)]
-        let query = Query(predicate: predicate, sortOptions: sortOptions)
-
         var projects = [Project]()
         _ = (0..<10).publisher
             .flatMap { i in
@@ -163,7 +128,7 @@ final class CoreDataStoreMockTests: XCTestCase {
             .collect()
             .eraseToAnyPublisher()
             .flatMap { _ in
-                self.store.fetch(query)
+                self.store.fetchAll()
             }
             .sink { _ in
 
@@ -179,36 +144,4 @@ final class CoreDataStoreMockTests: XCTestCase {
         XCTAssertEqual(projects.map(\.amount), (0..<10).map { Double($0 * 10) })
     }
 
-    func testFetchObjects3() {
-        XCTAssertEqual(store.context.realCount(for: requestAll), 0, "Data store should be empty.")
-
-        let expectation = expectation(description: String(describing: #function))
-
-        let predicate = Predicate<Project>.compare(\Project.name, operation: .equal, value: "Test 3")
-        let sortOptions = [SortOption<Project>(property: \Project.name, order: .ascending)]
-        let query = Query(predicate: predicate, sortOptions: sortOptions)
-
-        var projects = [Project]()
-        _ = (0..<10).publisher
-            .flatMap { i in
-                self.store.insert(Project(name: "Test \(i)", amount: Double(i * 10), id: UUID()))
-            }
-            .collect()
-            .eraseToAnyPublisher()
-            .flatMap { _ in
-                self.store.fetch(query)
-            }
-            .sink { _ in
-
-            } receiveValue: { value in
-                projects = value
-                expectation.fulfill()
-            }
-
-        waitForExpectations(timeout: 2)
-
-        XCTAssertEqual(store.context.realCount(for: requestAll), 10)
-        XCTAssertEqual(projects.map(\.name), ["Test 3"])
-        XCTAssertEqual(projects.map(\.amount), [30.0])
-    }
 }

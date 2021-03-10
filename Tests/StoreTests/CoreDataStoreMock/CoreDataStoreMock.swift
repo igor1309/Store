@@ -54,45 +54,4 @@ extension CDProject: CoreDataManageable {
         Project(name: name, amount: amount, id: id)
     }
 
-    #warning("write tests for this")
-    public static func predicate(from query: Query<Project>) -> NSPredicate {
-        switch query.predicate {
-            case let .compare(keyPath, operation: operation, value: value):
-                switch keyPath {
-                    case \Project.name:
-                        // let keyPath = \CDProject.name_
-                        // return NSPredicate(format: "%K \(operation.rawValue) %@", keyPath as! CVarArg, value)
-                        // return NSPredicate(format: "%K \(operation.rawValue) %@", argumentArray: [keyPath, value])
-                        return NSPredicate(format: "%K \(operation.rawValue) %@", #keyPath(CDProject.name_), value)
-                    case \Project.amount:
-                        // let keyPath = \CDProject.amount
-                        // return NSPredicate(format: "%K \(operation.rawValue) %@", argumentArray: [keyPath, value])
-                        return NSPredicate(format: "%K \(operation.rawValue) %@", #keyPath(CDProject.amount), NSNumber(floatLiteral: value as! Double))
-                    default:
-                        return .all
-                }
-            case .all: return NSPredicate.all
-        }
-    }
-
-    #warning("write tests for this")
-    /// Any time you’re sorting user-facing strings, be sure to pass the selector localizedStandardCompare:, which will sort according to the language rules of the current locale (locales may differ on ordering of case, diacritics, and so forth).
-    /// https://nshipster.com/nssortdescriptor/
-    public static func sortDescriptors(from query: Query<Project>) -> [NSSortDescriptor] {
-        query.sortOptions.compactMap {
-            let order = $0.order == .ascending
-
-            switch $0.property {
-                case \Project.name:
-                    let keyPath = \CDProject.name_
-                    return NSSortDescriptor(keyPath: keyPath, ascending: order)
-                case \Project.amount:
-                    let keyPath = \CDProject.amount
-                    return NSSortDescriptor(keyPath: keyPath, ascending: order)
-                default:
-                    return nil
-            }
-        }
-    }
-
 }

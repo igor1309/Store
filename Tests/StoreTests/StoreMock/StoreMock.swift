@@ -40,9 +40,8 @@ class StoreMock: Store {
         }
     }
 
-    func fetch(_ query: Query<Project>) -> Future<[Project], Error> {
-        #warning("finish this")
-        return Future { completion in
+    func fetchAll() -> Future<[Project], Error> {
+        Future { completion in
             completion(.success(self.projects))
         }
     }
