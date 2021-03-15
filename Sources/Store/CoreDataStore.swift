@@ -38,7 +38,12 @@ open class CoreDataStore<Object: CoreDataStorable,
 
     public func insert(_ object: Object) -> Future<Object, Error> {
         Future { completion in
-            let reflection = Reflection(context: self.context)
+            let reflection: Reflection
+            if let existingReflection = object.reflection(in: self.context) {
+                reflection = existingReflection
+            } else {
+               reflection = Reflection(context: self.context)
+            }
             // guard let r = NSEntityDescription.insertNewObject(forEntityName: String(describing: Reflection.self), into: self.context) else { return completion(.failure(CoreDataError.invalidManagedObjectType)) }
             reflection.update(with: object)
 
